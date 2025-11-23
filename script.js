@@ -159,29 +159,14 @@ function drawLine(p1, p2) {
 
 function drawDetections(faces, hands) {
     ctx.clearRect(0, 0, overlay.width, overlay.height);
-    let totalFingers = 0;
-    let mainGesture = '-';
+    let total = 0;
+    let gest = '-';
 
     faces.forEach((f, i) => {
         const s = f.topLeft, e = f.bottomRight;
         ctx.strokeStyle = '#00ff00';
         ctx.lineWidth = 3;
         ctx.strokeRect(s[0], s[1], e[0] - s[0], e[1] - s[1]);
-        
-        ctx.save();
-        if (currentFacingMode === 'user') {
-            ctx.translate(overlay.width, 0);
-            ctx.scale(-1, 1);
-        }
-        
-        ctx.fillStyle = '#00ff00';
-        ctx.font = '14px Arial';
-        let textX = s[0];
-        if (currentFacingMode === 'user') {
-            textX = overlay.width - s[0] - 50;
-        }
-        ctx.fillText('Wajah ' + (i + 1), textX, s[1] - 5);
-        ctx.restore();
     });
 
     hands.forEach((h, i) => {
@@ -203,29 +188,12 @@ function drawDetections(faces, hands) {
         drawLine(k[0], k[13]); drawLine(k[13], k[14]); drawLine(k[14], k[15]); drawLine(k[15], k[16]);
         drawLine(k[0], k[17]); drawLine(k[17], k[18]); drawLine(k[18], k[19]); drawLine(k[19], k[20]);
 
-        const fingerCount = countFingers(k);
-        totalFingers += fingerCount;
-        const gesture = detectGesture(k, fingerCount);
-        
-        if (i === 0) mainGesture = gesture;
-
-        ctx.save();
-        if (currentFacingMode === 'user') {
-            ctx.translate(overlay.width, 0);
-            ctx.scale(-1, 1);
-        }
-        
-        ctx.fillStyle = '#ff0000';
-        ctx.font = '12px Arial';
-        let handTextX = minX;
-        if (currentFacingMode === 'user') {
-            handTextX = overlay.width - minX - 80;
-        }
-        ctx.fillText('Tangan ' + (i + 1) + ' - ' + fingerCount + ' jari', handTextX, minY - 10);
-        ctx.restore();
+        const fng = countFingers(k);
+        total += fng;
+        if (i === 0) gest = detectGesture(k, fng);
     });
 
-    return { totalFingers, mainGesture };
+    return { total, gest };
 }
 
 async function detectionLoop() {
@@ -233,16 +201,16 @@ async function detectionLoop() {
     const faces = await detectFaces();
     const hands = await detectHands();
 
-    const { totalFingers, mainGesture } = drawDetections(faces, hands);
+    const { total, gest } = drawDetections(faces, hands);
 
-    checkForSpeech(totalFingers, mainGesture);
+    checkForSpeech(total, gest);
 
     faceCount.textContent = faces.length;
     faceStatus.textContent = faces.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
     handCount.textContent = hands.length;
     handStatus.textContent = hands.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
-    fingerCount.textContent = totalFingers;
-    gesture.textContent = mainGesture;
+    fingerCount.textContent = total;
+    gesture.textContent = gest;
 
     requestAnimationFrame(detectionLoop);
 }
