@@ -167,6 +167,21 @@ function drawDetections(faces, hands) {
         ctx.strokeStyle = '#00ff00';
         ctx.lineWidth = 3;
         ctx.strokeRect(s[0], s[1], e[0] - s[0], e[1] - s[1]);
+        
+        ctx.save();
+        if (currentFacingMode === 'user') {
+            ctx.translate(overlay.width, 0);
+            ctx.scale(-1, 1);
+        }
+        
+        ctx.fillStyle = '#00ff00';
+        ctx.font = '14px Arial';
+        let textX = s[0];
+        if (currentFacingMode === 'user') {
+            textX = overlay.width - s[0] - 50;
+        }
+        ctx.fillText('Wajah ' + (i + 1), textX, s[1] - 5);
+        ctx.restore();
     });
 
     hands.forEach((h, i) => {
@@ -191,6 +206,21 @@ function drawDetections(faces, hands) {
         const fng = countFingers(k);
         total += fng;
         if (i === 0) gest = detectGesture(k, fng);
+
+        ctx.save();
+        if (currentFacingMode === 'user') {
+            ctx.translate(overlay.width, 0);
+            ctx.scale(-1, 1);
+        }
+        
+        ctx.fillStyle = '#ff0000';
+        ctx.font = '12px Arial';
+        let handTextX = minX;
+        if (currentFacingMode === 'user') {
+            handTextX = overlay.width - minX - 80;
+        }
+        ctx.fillText('Tangan ' + (i + 1), handTextX, minY - 10);
+        ctx.restore();
     });
 
     return { total, gest };
