@@ -177,7 +177,6 @@ function drawDetections(faces, hands) {
         ctx.strokeRect(s[0], s[1], e[0] - s[0], e[1] - s[1]);
         ctx.fillStyle = '#00ff00';
         ctx.font = '14px Arial';
-        ctx.fillText('Wajah ' + (i + 1), s[0], s[1] - 5);
     });
 
     hands.forEach((h, i) => {
