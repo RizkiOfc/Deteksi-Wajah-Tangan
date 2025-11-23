@@ -1,4 +1,4 @@
-* {
+       * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -243,6 +243,11 @@
             height: 50px;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
+        }
+
+        .video-container video,
+        .video-container canvas {
+           transform: scaleX(-1);
         }
         
         @keyframes spin {
