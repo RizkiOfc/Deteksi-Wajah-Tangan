@@ -42,17 +42,17 @@ function speak(text) {
 function checkForSpeech(fingerCount, gesture) {
     if (fingerCount !== lastFingerCount) {
         if (fingerCount === 0) {
-            speak("Terdeteksi kepalan tangan");
+            speak("kepalan tangan");
         } else if (fingerCount === 1) {
-            speak("Terdeteksi satu jari");
+            speak("satu jari");
         } else if (fingerCount === 2) {
-            speak("Terdeteksi dua jari");
+            speak("dua jari");
         } else if (fingerCount === 3) {
-            speak("Terdeteksi tiga jari");
+            speak("tiga jari");
         } else if (fingerCount === 4) {
-            speak("Terdeteksi empat jari");
+            speak("empat jari");
         } else if (fingerCount === 5) {
-            speak("Terdeteksi lima jari");
+            speak("lima jari");
         }
         lastFingerCount = fingerCount;
     }
@@ -99,7 +99,7 @@ async function loadModels() {
         });
         loading.style.display = 'none';
         modelsLoaded = true;
-        status.textContent = 'Model berhasil dimuat! TTS aktif.';
+        status.textContent = 'Model berhasil dimuat...';
         return true;
     } catch (err) {
         loading.style.display = 'none';
