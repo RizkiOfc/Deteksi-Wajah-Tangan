@@ -363,7 +363,7 @@
         </footer>
     </div>
     <script>
-        const video = document.getElementById('video');
+const video = document.getElementById('video');
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
@@ -380,7 +380,6 @@ const gesture = document.getElementById('gesture');
 const ctx = overlay.getContext('2d');
 
 let stream = null;
-let faceModel = null;
 let handDetector = null;
 let currentFacingMode = 'user';
 let isDetecting = false;
@@ -399,21 +398,15 @@ function loadFaceAPI() {
 async function startCamera(facingMode = 'user') {
     try {
         status.textContent = 'Mengakses kamera...';
-        const constraints = { 
-            video: { 
-                facingMode, 
-                width: { ideal: 640 }, 
-                height: { ideal: 480 } 
-            } 
-        };
+        const constraints = { video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } } };
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
         await new Promise(resolve => video.onloadedmetadata = resolve);
         overlay.width = video.videoWidth;
         overlay.height = video.videoHeight;
         return true;
-    } catch (err) {
-        status.textContent = 'Gagal mengakses kamera. Pastikan izin kamera diberikan.';
+    } catch {
+        status.textContent = 'Gagal mengakses kamera.';
         return false;
     }
 }
@@ -421,13 +414,10 @@ async function startCamera(facingMode = 'user') {
 async function loadModels() {
     loading.style.display = 'block';
     status.textContent = 'Memuat model deteksi...';
-    
     try {
         await loadFaceAPI();
         await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights/');
         await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights/');
-        await faceapi.nets.faceExpressionNet.loadFromUri('https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights/');
-        
         const model = handPoseDetection.SupportedModels.MediaPipeHands;
         handDetector = await handPoseDetection.createDetector(model, {
             runtime: 'mediapipe',
@@ -435,29 +425,21 @@ async function loadModels() {
             maxHands: 2,
             solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/'
         });
-        
         loading.style.display = 'none';
         modelsLoaded = true;
         status.textContent = 'Model berhasil dimuat!';
         return true;
-    } catch (err) {
-        console.error('Error loading models:', err);
+    } catch {
         loading.style.display = 'none';
-        status.textContent = 'Error memuat model. Refresh halaman dan coba lagi.';
+        status.textContent = 'Error memuat model.';
         return false;
     }
 }
 
 async function detectFaces() {
-    if (!faceapi) return [];
     try {
-        const detection = await faceapi
-            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-            .withFaceLandmarks()
-            .withFaceExpressions();
-        return detection;
-    } catch (err) {
-        console.error('Face detection error:', err);
+        return await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
+    } catch {
         return [];
     }
 }
@@ -466,59 +448,8 @@ async function detectHands() {
     if (!handDetector) return [];
     try {
         return await handDetector.estimateHands(video);
-    } catch (err) {
-        console.error('Hand detection error:', err);
+    } catch {
         return [];
-    }
-}
-
-function getDominantExpression(expressions) {
-    if (!expressions) return 'Netral';
-    
-    let maxProbability = 0;
-    let dominantExpression = 'netral';
-    
-    for (const [expression, probability] of Object.entries(expressions)) {
-        if (probability > maxProbability) {
-            maxProbability = probability;
-            dominantExpression = expression;
-        }
-    }
-    
-    const expressionMap = {
-        'happy': 'Senang',
-        'sad': 'Sedih', 
-        'angry': 'Marah',
-        'fearful': 'Takut',
-        'disgusted': 'Jijik',
-        'surprised': 'Terkejut',
-        'neutral': 'Netral'
-    };
-    
-    return expressionMap[dominantExpression] || 'Netral';
-}
-
-function getExpressionColor(expression) {
-    switch(expression) {
-        case 'Senang': return '#28a745';
-        case 'Sedih': return '#17a2b8';
-        case 'Marah': return '#dc3545';
-        case 'Takut': return '#6f42c1';
-        case 'Jijik': return '#20c997';
-        case 'Terkejut': return '#fd7e14';
-        default: return '#ffc107';
-    }
-}
-
-function getExpressionClass(expression) {
-    switch(expression) {
-        case 'Senang': return 'expression-happy';
-        case 'Sedih': return 'expression-sad';
-        case 'Marah': return 'expression-angry';
-        case 'Takut': return 'expression-fearful';
-        case 'Jijik': return 'expression-disgusted';
-        case 'Terkejut': return 'expression-surprised';
-        default: return 'expression-neutral';
     }
 }
 
@@ -535,164 +466,89 @@ function countFingers(landmarks) {
 
 function detectGesture(landmarks, fingerCount) {
     if (fingerCount === 0) return 'Kepalan Tangan';
-    if (fingerCount === 1) {
-        if (landmarks[4].x > landmarks[3].x) return 'Thumbs Up';
-        return 'Satu Jari';
-    }
-    if (fingerCount === 2) {
-        if (landmarks[8].y < landmarks[6].y && landmarks[12].y < landmarks[10].y) {
-            return 'Peace Sign';
-        }
-        return 'Dua Jari';
-    }
+    if (fingerCount === 1) return 'Satu Jari';
+    if (fingerCount === 2) return 'Dua Jari';
     if (fingerCount === 3) return 'Tiga Jari';
     if (fingerCount === 4) return 'Empat Jari';
     if (fingerCount === 5) return 'Telapak Tangan';
     return 'Tidak Dikenali';
 }
 
-function drawLine(p1, p2) {
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.stroke();
-}
-
 function drawDetections(faces, hands) {
     ctx.clearRect(0, 0, overlay.width, overlay.height);
     let totalFingers = 0;
     let detectedGesture = '-';
-    let detectedExpression = '-';
 
-    faces.forEach((face, index) => {
+    faces.forEach(face => {
         const box = face.detection.box;
-        const expressions = face.expressions;
-        const dominantExpression = getDominantExpression(expressions);
-        detectedExpression = dominantExpression;
-        const expressionColor = getExpressionColor(dominantExpression);
-        
-        ctx.strokeStyle = expressionColor;
+        ctx.strokeStyle = '#00ff00';
         ctx.lineWidth = 3;
         ctx.strokeRect(box.x, box.y, box.width, box.height);
-        
         if (face.landmarks) {
-            ctx.fillStyle = expressionColor;
-            face.landmarks.positions.forEach(landmark => {
+            ctx.fillStyle = '#00ff00';
+            face.landmarks.positions.forEach(p => {
                 ctx.beginPath();
-                ctx.arc(landmark.x, landmark.y, 2, 0, 2 * Math.PI);
+                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
                 ctx.fill();
             });
-        }
-        
-        const topExpression = Object.entries(expressions)
-            .sort(([,a], [,b]) => b - a)
-            .slice(0, 2);
-        
-        ctx.fillStyle = expressionColor;
-        ctx.font = 'bold 14px Arial';
-        ctx.fillText(`${dominantExpression} (${Math.round(topExpression[0][1] * 100)}%)`, box.x, box.y - 10);
-        
-        if (topExpression[1]) {
-            ctx.font = '12px Arial';
-            ctx.fillText(`${topExpression[1][0]}: ${Math.round(topExpression[1][1] * 100)}%`, box.x, box.y - 25);
         }
     });
 
     hands.forEach((hand, index) => {
         const keypoints = hand.keypoints;
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 3;
         let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
-
         keypoints.forEach(p => {
             minX = Math.min(minX, p.x);
             minY = Math.min(minY, p.y);
             maxX = Math.max(maxX, p.x);
             maxY = Math.max(maxY, p.y);
         });
-
-        ctx.strokeStyle = '#ff0000';
-        ctx.lineWidth = 3;
         ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
-
         ctx.fillStyle = '#ff0000';
         keypoints.forEach(p => {
             ctx.beginPath();
-            ctx.arc(p.x, p.y, 3, 0, 2 * Math.PI);
+            ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
             ctx.fill();
         });
-
-        ctx.strokeStyle = '#ff0000';
-        ctx.lineWidth = 2;
-        const connections = [
-            [0,1], [1,2], [2,3], [3,4],
-            [0,5], [5,6], [6,7], [7,8],
-            [0,9], [9,10], [10,11], [11,12],
-            [0,13], [13,14], [14,15], [15,16],
-            [0,17], [17,18], [18,19], [19,20]
-        ];
-        
-        connections.forEach(([i, j]) => {
-            drawLine(keypoints[i], keypoints[j]);
-        });
-
-        const fingerCount = countFingers(keypoints);
-        totalFingers += fingerCount;
-        
-        if (index === 0) {
-            detectedGesture = detectGesture(keypoints, fingerCount);
-        }
-
-        ctx.fillStyle = '#ff0000';
-        ctx.font = 'bold 12px Arial';
-        ctx.fillText(`${fingerCount} jari - ${hand.handedness || 'Unknown'}`, minX, minY - 10);
+        const fingerCounter = countFingers(keypoints);
+        totalFingers += fingerCounter;
+        if (index === 0) detectedGesture = detectGesture(keypoints, fingerCounter);
+        ctx.font = '12px Arial';
+        ctx.fillText(`${fingerCounter} jari`, minX, minY - 10);
     });
 
-    return { 
-        totalFingers, 
-        detectedGesture, 
-        detectedExpression: faces.length > 0 ? detectedExpression : '-' 
-    };
+    return { totalFingers, detectedGesture };
 }
 
 async function detectionLoop() {
     if (!isDetecting) return;
-    
     const faces = await detectFaces();
     const hands = await detectHands();
-    const { totalFingers, detectedGesture, detectedExpression } = drawDetections(faces, hands);
-
+    const { totalFingers, detectedGesture } = drawDetections(faces, hands);
     faceCount.textContent = faces.length;
     faceStatus.textContent = faces.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
-    
-    if (faces.length > 0) {
-        const expressionClass = getExpressionClass(detectedExpression);
-        expression.innerHTML = `<span class="expression-indicator ${expressionClass}"></span>${detectedExpression}`;
-    } else {
-        expression.textContent = '-';
-    }
-    
+    expression.textContent = '-';
     handCount.textContent = hands.length;
     handStatus.textContent = hands.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
     fingerCount.textContent = totalFingers;
     gesture.textContent = detectedGesture;
-
     requestAnimationFrame(detectionLoop);
 }
 
 async function startDetection() {
     if (isDetecting) return;
-
     const cameraStarted = await startCamera(currentFacingMode);
     if (!cameraStarted) return;
-
     if (!modelsLoaded) {
-        const modelsLoadedSuccess = await loadModels();
-        if (!modelsLoadedSuccess) return;
+        const ok = await loadModels();
+        if (!ok) return;
     }
-
     isDetecting = true;
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    status.textContent = 'Deteksi aktif. Coba berbagai ekspresi wajah!';
+    status.textContent = 'Deteksi aktif.';
     detectionLoop();
 }
 
@@ -700,15 +556,11 @@ function stopDetection() {
     isDetecting = false;
     startBtn.disabled = false;
     stopBtn.disabled = true;
-    status.textContent = 'Deteksi dihentikan.';
-
     if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach(t => t.stop());
         stream = null;
     }
-
     ctx.clearRect(0, 0, overlay.width, overlay.height);
-    
     faceCount.textContent = '0';
     faceStatus.textContent = 'Tidak terdeteksi';
     expression.textContent = '-';
@@ -716,6 +568,7 @@ function stopDetection() {
     handStatus.textContent = 'Tidak terdeteksi';
     fingerCount.textContent = '0';
     gesture.textContent = '-';
+    status.textContent = 'Deteksi dihentikan.';
 }
 
 async function switchCamera() {
@@ -728,11 +581,11 @@ async function switchCamera() {
 startBtn.addEventListener('click', startDetection);
 stopBtn.addEventListener('click', stopDetection);
 switchCameraBtn.addEventListener('click', switchCamera);
-
-status.textContent = 'Klik "Mulai Deteksi" untuk memulai sistem.';
-        </script>
+status.textContent = 'Klik "Mulai Deteksi" untuk memulai.';
+    </script>
 </body>
 </html>
+
 
 
 
