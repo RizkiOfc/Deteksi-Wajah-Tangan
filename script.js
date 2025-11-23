@@ -19,6 +19,55 @@ let handDetector = null;
 let currentFacingMode = 'user';
 let isDetecting = false;
 let modelsLoaded = false;
+let lastFingerCount = -1;
+let lastGesture = '';
+let ttsEnabled = true;
+
+function speak(text) {
+    if (!ttsEnabled) return;
+    
+    if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        speechSynthesis.speak(utterance);
+    }
+}
+
+function checkForSpeech(fingerCount, gesture) {
+    if (fingerCount !== lastFingerCount) {
+        if (fingerCount === 0) {
+            speak("Terdeteksi kepalan tangan");
+        } else if (fingerCount === 1) {
+            speak("Terdeteksi satu jari");
+        } else if (fingerCount === 2) {
+            speak("Terdeteksi dua jari");
+        } else if (fingerCount === 3) {
+            speak("Terdeteksi tiga jari");
+        } else if (fingerCount === 4) {
+            speak("Terdeteksi empat jari");
+        } else if (fingerCount === 5) {
+            speak("Terdeteksi lima jari");
+        }
+        lastFingerCount = fingerCount;
+    }
+    
+    if (gesture !== lastGesture && gesture !== '-') {
+        if (gesture === 'Thumbs Up') {
+            speak("Jempol baik");
+        } else if (gesture === 'Peace Sign') {
+            speak("Peace sign");
+        } else if (gesture === 'Telapak Tangan') {
+            speak("Telapak tangan terbuka");
+        }
+        lastGesture = gesture;
+    }
+}
 
 async function startCamera(facingMode = 'user') {
     try {
@@ -50,6 +99,7 @@ async function loadModels() {
         });
         loading.style.display = 'none';
         modelsLoaded = true;
+        status.textContent = 'Model berhasil dimuat! TTS aktif.';
         return true;
     } catch (err) {
         loading.style.display = 'none';
@@ -147,6 +197,8 @@ async function detectionLoop() {
 
     const { total, gest } = drawDetections(faces, hands);
 
+    checkForSpeech(total, gest);
+
     faceCount.textContent = faces.length;
     faceStatus.textContent = faces.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
     handCount.textContent = hands.length;
@@ -171,7 +223,9 @@ async function startDetection() {
     isDetecting = true;
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    status.textContent = 'Deteksi aktif.';
+    status.textContent = 'Deteksi aktif. TTS aktif.';
+    lastFingerCount = -1;
+    lastGesture = '';
     detectionLoop();
 }
 
@@ -185,6 +239,8 @@ function stopDetection() {
         stream.getTracks().forEach(t => t.stop());
         stream = null;
     }
+
+    speechSynthesis.cancel();
 
     ctx.clearRect(0, 0, overlay.width, overlay.height);
     faceCount.textContent = '0';
