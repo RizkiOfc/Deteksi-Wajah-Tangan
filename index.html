@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deteksi Tangan & Wajah</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.0/dist/hand-pose-detection.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4a00e0, #8e2de2);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .content {
+            padding: 0 30px 30px;
+        }
+        
+        .detection-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .video-container {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            background: #000;
+        }
+        
+        video, canvas {
+            width: 100%;
+            height: 400px;
+            display: block;
+            object-fit: cover;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .results-panel {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-panel h2 {
+            color: #4a00e0;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .result-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            color: #4a00e0;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4a00e0, #8e2de2);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 0, 224, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 10px;
+            color: #0066cc;
+            font-weight: 500;
+        }
+        
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #4a00e0;
+        }
+        
+        .info-card h3 {
+            color: #4a00e0;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .info-card p {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .detection-section {
+                flex-direction: column;
+            }
+            
+            .video-container, .results-panel {
+                width: 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid #4a00e0;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Deteksi Tangan & Wajah</h1>
+            <p class="subtitle">Sistem deteksi real-time menggunakan TensorFlow.js & MediaPipe</p>
+        </header>
+        
+        <div class="content">
+            <div class="detection-section">
+                <div class="video-container">
+                    <video id="video" autoplay muted playsinline></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+                
+                <div class="results-panel">
+                    <h2>Hasil Deteksi</h2>
+                    <div class="result-item">
+                        <span class="result-label">Jumlah Wajah:</span>
+                        <span class="result-value" id="faceCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status Wajah:</span>
+                        <span class="result-value" id="faceStatus">Tidak terdeteksi</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Jumlah Tangan:</span>
+                        <span class="result-value" id="handCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status Tangan:</span>
+                        <span class="result-value" id="handStatus">Tidak terdeteksi</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Jari Terdeteksi:</span>
+                        <span class="result-value" id="fingerCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gestur:</span>
+                        <span class="result-value" id="gesture">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Memuat model deteksi...</p>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
+                    </svg>
+                    Mulai Deteksi
+                </button>
+                <button id="stopBtn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="6" y="6" width="4" height="12" fill="currentColor"/>
+                        <rect x="14" y="6" width="4" height="12" fill="currentColor"/>
+                    </svg>
+                    Hentikan Deteksi
+                </button>
+                <button id="switchCameraBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="currentColor"/>
+                        <path d="M20 4H16.83L15.59 2.65C15.22 2.24 14.68 2 14.12 2H9.88C9.32 2 8.78 2.24 8.41 2.65L7.17 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z" fill="currentColor"/>
+                    </svg>
+                    Ganti Kamera
+                </button>
+            </div>
+            
+            <div class="status" id="status">
+                Klik "Mulai Deteksi" untuk memulai sistem
+            </div>
+            
+            <div class="info-section">
+                <div class="info-card">
+                    <h3>Deteksi Wajah</h3>
+                    <p>Sistem menggunakan BlazeFace untuk mendeteksi wajah dengan akurasi tinggi dan kecepatan real-time.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Deteksi Tangan</h3>
+                    <p>Menggunakan MediaPipe Hand Pose untuk deteksi tangan dan jari yang presisi.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Analisis Gestur</h3>
+                    <p>Sistem dapat mengenali berbagai gestur tangan seperti peace sign, thumbs up, dan lainnya.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Dibuat dengan ❤️ menggunakan TensorFlow.js & MediaPipe | &copy; 2023 Deteksi Tangan & Wajah</p>
+        </footer>
+    </div>
+
+    <script>
+const video = document.getElementById('video');
+const overlay = document.getElementById('overlay');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const switchCameraBtn = document.getElementById('switchCameraBtn');
+const status = document.getElementById('status');
+const loading = document.getElementById('loading');
+const faceCount = document.getElementById('faceCount');
+const faceStatus = document.getElementById('faceStatus');
+const handCount = document.getElementById('handCount');
+const handStatus = document.getElementById('handStatus');
+const fingerCount = document.getElementById('fingerCount');
+const gesture = document.getElementById('gesture');
+const ctx = overlay.getContext('2d');
+
+let stream = null;
+let faceModel = null;
+let handDetector = null;
+let currentFacingMode = 'user';
+let isDetecting = false;
+let modelsLoaded = false;
+
+async function startCamera(facingMode = 'user') {
+    try {
+        status.textContent = 'Mengakses kamera...';
+        const constraints = { video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } } };
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+        await new Promise(resolve => video.onloadedmetadata = resolve);
+        overlay.width = video.videoWidth;
+        overlay.height = video.videoHeight;
+        return true;
+    } catch (err) {
+        status.textContent = 'Gagal mengakses kamera.';
+        return false;
+    }
+}
+
+async function loadModels() {
+    loading.style.display = 'block';
+    status.textContent = 'Memuat model deteksi...';
+    try {
+        faceModel = await blazeface.load();
+        const model = handPoseDetection.SupportedModels.MediaPipeHands;
+        handDetector = await handPoseDetection.createDetector(model, {
+            runtime: 'mediapipe',
+            modelType: 'full',
+            maxHands: 2,
+            solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/'
+        });
+        loading.style.display = 'none';
+        modelsLoaded = true;
+        return true;
+    } catch (err) {
+        loading.style.display = 'none';
+        status.textContent = 'Error memuat model.';
+        return false;
+    }
+}
+
+async function detectFaces() {
+    if (!faceModel) return [];
+    try { return await faceModel.estimateFaces(video, false); }
+    catch { return []; }
+}
+
+async function detectHands() {
+    if (!handDetector) return [];
+    try { return await handDetector.estimateHands(video); }
+    catch { return []; }
+}
+
+function countFingers(l) {
+    if (!l || l.length < 21) return 0;
+    let c = 0;
+    if (l[4].x > l[3].x) c++;
+    if (l[8].y < l[6].y) c++;
+    if (l[12].y < l[10].y) c++;
+    if (l[16].y < l[14].y) c++;
+    if (l[20].y < l[18].y) c++;
+    return c;
+}
+
+function detectGesture(l, f) {
+    if (f === 0) return 'Kepalan Tangan';
+    if (f === 1) return l[4].x > l[3].x ? 'Thumbs Up' : 'Satu Jari';
+    if (f === 2) return (l[8].y < l[6].y && l[12].y < l[10].y) ? 'Peace Sign' : 'Dua Jari';
+    if (f === 3) return 'Tiga Jari';
+    if (f === 4) return 'Empat Jari';
+    if (f === 5) return 'Telapak Tangan';
+    return '-';
+}
+
+function drawLine(p1, p2) {
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+}
+
+function drawDetections(faces, hands) {
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+    let total = 0;
+    let gest = '-';
+
+    faces.forEach((f, i) => {
+        const s = f.topLeft, e = f.bottomRight;
+        ctx.strokeStyle = '#00ff00';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(s[0], s[1], e[0] - s[0], e[1] - s[1]);
+        ctx.fillStyle = '#00ff00';
+        ctx.font = '14px Arial';
+        ctx.fillText('Wajah ' + (i + 1), s[0], s[1] - 5);
+    });
+
+    hands.forEach((h, i) => {
+        const k = h.keypoints;
+        let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+
+        k.forEach(p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); });
+
+        ctx.strokeStyle = '#ff0000';
+        ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
+
+        ctx.fillStyle = '#ff0000';
+        k.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, 2 * Math.PI); ctx.fill(); });
+
+        ctx.strokeStyle = '#ff0000';
+        drawLine(k[0], k[1]); drawLine(k[1], k[2]); drawLine(k[2], k[3]); drawLine(k[3], k[4]);
+        drawLine(k[0], k[5]); drawLine(k[5], k[6]); drawLine(k[6], k[7]); drawLine(k[7], k[8]);
+        drawLine(k[0], k[9]); drawLine(k[9], k[10]); drawLine(k[10], k[11]); drawLine(k[11], k[12]);
+        drawLine(k[0], k[13]); drawLine(k[13], k[14]); drawLine(k[14], k[15]); drawLine(k[15], k[16]);
+        drawLine(k[0], k[17]); drawLine(k[17], k[18]); drawLine(k[18], k[19]); drawLine(k[19], k[20]);
+
+        const fng = countFingers(k);
+        total += fng;
+        if (i === 0) gest = detectGesture(k, fng);
+    });
+
+    return { total, gest };
+}
+
+async function detectionLoop() {
+    if (!isDetecting) return;
+    const faces = await detectFaces();
+    const hands = await detectHands();
+
+    const { total, gest } = drawDetections(faces, hands);
+
+    faceCount.textContent = faces.length;
+    faceStatus.textContent = faces.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
+    handCount.textContent = hands.length;
+    handStatus.textContent = hands.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
+    fingerCount.textContent = total;
+    gesture.textContent = gest;
+
+    requestAnimationFrame(detectionLoop);
+}
+
+async function startDetection() {
+    if (isDetecting) return;
+
+    const cam = await startCamera(currentFacingMode);
+    if (!cam) return;
+
+    if (!modelsLoaded) {
+        const load = await loadModels();
+        if (!load) return;
+    }
+
+    isDetecting = true;
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    status.textContent = 'Deteksi aktif.';
+    detectionLoop();
+}
+
+function stopDetection() {
+    isDetecting = false;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    status.textContent = 'Deteksi dihentikan.';
+
+    if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+    }
+
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+    faceCount.textContent = '0';
+    faceStatus.textContent = 'Tidak terdeteksi';
+    handCount.textContent = '0';
+    handStatus.textContent = 'Tidak terdeteksi';
+    fingerCount.textContent = '0';
+    gesture.textContent = '-';
+}
+
+async function switchCamera() {
+    if (!isDetecting) return;
+    stopDetection();
+    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+    await startDetection();
+}
+
+startBtn.addEventListener('click', startDetection);
+stopBtn.addEventListener('click', stopDetection);
+switchCameraBtn.addEventListener('click', switchCamera);
+
+status.textContent = 'Klik "Mulai Deteksi" untuk memulai.';
+</script>
+</body>
+</html>
