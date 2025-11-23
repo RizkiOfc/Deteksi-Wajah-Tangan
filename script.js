@@ -39,14 +39,6 @@ function speak(text) {
     }
 }
 
-/*if (facingMode === 'user') {
-            video.style.transform = 'scaleX(-1)';
-            overlay.style.transform = 'scaleX(-1)';
-        } else {
-            video.style.transform = 'scaleX(1)';
-            overlay.style.transform = 'scaleX(1)';
-}*/
-
 function checkForSpeech(fingerCount, gesture) {
     if (fingerCount !== lastFingerCount) {
         if (fingerCount === 0) {
@@ -175,8 +167,6 @@ function drawDetections(faces, hands) {
         ctx.strokeStyle = '#00ff00';
         ctx.lineWidth = 3;
         ctx.strokeRect(s[0], s[1], e[0] - s[0], e[1] - s[1]);
-        ctx.fillStyle = '#00ff00';
-        ctx.font = '14px Arial';
     });
 
     hands.forEach((h, i) => {
