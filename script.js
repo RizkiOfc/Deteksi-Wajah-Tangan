@@ -159,8 +159,8 @@ function drawLine(p1, p2) {
 
 function drawDetections(faces, hands) {
     ctx.clearRect(0, 0, overlay.width, overlay.height);
-    let total = 0;
-    let gest = '-';
+    let totalFingers = 0;
+    let mainGesture = '-';
 
     faces.forEach((f, i) => {
         const s = f.topLeft, e = f.bottomRight;
@@ -203,9 +203,11 @@ function drawDetections(faces, hands) {
         drawLine(k[0], k[13]); drawLine(k[13], k[14]); drawLine(k[14], k[15]); drawLine(k[15], k[16]);
         drawLine(k[0], k[17]); drawLine(k[17], k[18]); drawLine(k[18], k[19]); drawLine(k[19], k[20]);
 
-        const fng = countFingers(k);
-        total += fng;
-        if (i === 0) gest = detectGesture(k, fng);
+        const fingerCount = countFingers(k);
+        totalFingers += fingerCount;
+        const gesture = detectGesture(k, fingerCount);
+        
+        if (i === 0) mainGesture = gesture;
 
         ctx.save();
         if (currentFacingMode === 'user') {
@@ -219,11 +221,11 @@ function drawDetections(faces, hands) {
         if (currentFacingMode === 'user') {
             handTextX = overlay.width - minX - 80;
         }
-        ctx.fillText('Tangan ' + (i + 1), handTextX, minY - 10);
+        ctx.fillText('Tangan ' + (i + 1) + ' - ' + fingerCount + ' jari', handTextX, minY - 10);
         ctx.restore();
     });
 
-    return { total, gest };
+    return { totalFingers, mainGesture };
 }
 
 async function detectionLoop() {
@@ -231,16 +233,16 @@ async function detectionLoop() {
     const faces = await detectFaces();
     const hands = await detectHands();
 
-    const { total, gest } = drawDetections(faces, hands);
+    const { totalFingers, mainGesture } = drawDetections(faces, hands);
 
-    checkForSpeech(total, gest);
+    checkForSpeech(totalFingers, mainGesture);
 
     faceCount.textContent = faces.length;
     faceStatus.textContent = faces.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
     handCount.textContent = hands.length;
     handStatus.textContent = hands.length > 0 ? 'Terdeteksi' : 'Tidak terdeteksi';
-    fingerCount.textContent = total;
-    gesture.textContent = gest;
+    fingerCount.textContent = totalFingers;
+    gesture.textContent = mainGesture;
 
     requestAnimationFrame(detectionLoop);
 }
