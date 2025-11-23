@@ -39,6 +39,14 @@ function speak(text) {
     }
 }
 
+/*if (facingMode === 'user') {
+            video.style.transform = 'scaleX(-1)';
+            overlay.style.transform = 'scaleX(-1)';
+        } else {
+            video.style.transform = 'scaleX(1)';
+            overlay.style.transform = 'scaleX(1)';
+}*/
+
 function checkForSpeech(fingerCount, gesture) {
     if (fingerCount !== lastFingerCount) {
         if (fingerCount === 0) {
@@ -75,6 +83,15 @@ async function startCamera(facingMode = 'user') {
         const constraints = { video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } } };
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
+        
+        if (facingMode === 'user') {
+            video.style.transform = 'scaleX(-1)';
+            overlay.style.transform = 'scaleX(-1)';
+        } else {
+            video.style.transform = 'scaleX(1)';
+            overlay.style.transform = 'scaleX(1)';
+        }
+        
         await new Promise(resolve => video.onloadedmetadata = resolve);
         overlay.width = video.videoWidth;
         overlay.height = video.videoHeight;
