@@ -13,7 +13,7 @@ Website interaktif untuk mendeteksi tangan dan wajah secara real-time menggunaka
 ## Demo Live
 **Link Demo:** [https://hand-fasedetection.vercel.app/](https://hand-fasedetection.vercel.app/)
 
-![Preview](https://files.catbox.moe/35751j.ng)
+![Preview](https://files.catbox.moe/hc28kh.png)
 
 ## Fitur Utama
 
@@ -57,7 +57,7 @@ Website interaktif untuk mendeteksi tangan dan wajah secara real-time menggunaka
 
 ```
 
-hand-face-detection/
+Deteksi-Wajah-Tangan/
 ├──index.html          # Struktur utama website
 ├──style.css           # Styling & animasi
 ├──script.js           # Logic & deteksi
@@ -83,14 +83,8 @@ hand-face-detection/
 npx live-server
 ```
 
-Deploy ke Vercel/Netlify
-
-1. Upload file ke GitHub
-2. Connect repository ke Vercel/Netlify
-3. Deploy otomatis
-
-Fitur Deteksi Lengkap
-
+### Fitur Deteksi
+```
 Komponen Status Visual Suara
 Wajah ✅ Kotak hijau -
 Tangan ✅ Kotak merah + landmarks -
@@ -101,59 +95,27 @@ Jari 3 ✅ Tiga jari "tiga jari"
 Jari 4 ✅ Empat jari "empat jari"
 Jari 5 ✅ Telapak tangan "lima jari" / "Telapak tangan terbuka"
 Thumbs Up ✅ Jempol "Jempol baik"
+```
 
-UI/UX Features
-
+### UI/UX Features
+```
 · Modern Design - Gradient background & glassmorphism
 · Responsive - Mobile & desktop friendly
 · Real-time Feedback - Live statistics panel
 · Smooth Animations - Hover effects & transitions
 · Intuitive Controls - Clear button labels dengan icons
+```
 
-Browser Compatibility
-
-Browser Status Catatan
-Chrome ✅ Recommended Performa terbaik
-Firefox ✅ Supported -
-Edge ✅ Supported -
-Safari ⚠️ Limited TTS mungkin terbatas
-
-Requirements
-
-· Browser Modern dengan WebRTC support
-· Akses Kamera diijinkan
-· Koneksi Internet (untuk load model pertama)
-· HTTPS (untuk akses kamera yang aman)
-
-Performance Tips
-
-· Gunakan Chrome untuk hasil terbaik
-· Cahaya cukup untuk deteksi optimal
-· Background sederhana mengurangi noise
-· Refresh jika deteksi bermasalah
-
-Contributing
-
-Contributions welcome! Silakan:
-
-1. Fork repository
-2. Create feature branch (git checkout -b feature/AmazingFeature)
-3. Commit changes (git commit -m 'Add AmazingFeature')
-4. Push to branch (git push origin feature/AmazingFeature)
-5. Open Pull Request
-
-License
-
+##### License
+---
 Distributed under MIT License. See LICENSE for more information.
 
-Dibuat menggunakan:
-
+### Dibuat menggunakan:
+```
 · TensorFlow.js
 · MediaPipe
 · Web Speech API
-
+```
 ---
-⭐ Jika project ini membantu, jangan lupa beri star!
-🔗 Demo: https://hand-fasedetection.vercel.app/
-🐛 Issues? Silakan buat issue di GitHub repository
+### Jika project ini membantu, jangan lupa beri star!
 
