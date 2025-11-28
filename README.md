@@ -1,4 +1,4 @@
-```
+
 # Deteksi-Wajah-Tangan
 
 Website interaktif untuk mendeteksi tangan dan wajah secara real-time menggunakan teknologi TensorFlow.js dan MediaPipe. Dilengkapi dengan Text-to-Speech (TTS) yang akan mengumumkan jumlah jari yang terdeteksi!
@@ -157,4 +157,3 @@ Dibuat menggunakan:
 🔗 Demo: https://hand-fasedetection.vercel.app/
 🐛 Issues? Silakan buat issue di GitHub repository
 
-```
