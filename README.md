@@ -13,7 +13,7 @@ Website interaktif untuk mendeteksi tangan dan wajah secara real-time menggunaka
 ## Demo Live
 **Link Demo:** [https://hand-fasedetection.vercel.app/](https://hand-fasedetection.vercel.app/)
 
-![Preview](https://files.catbox.moe/35751j.png)
+![Preview](https://files.catbox.moe/35751j.ng)
 
 ## Fitur Utama
 
