@@ -1,83 +1,81 @@
+```
 # Deteksi-Wajah-Tangan
 
 Website interaktif untuk mendeteksi tangan dan wajah secara real-time menggunakan teknologi TensorFlow.js dan MediaPipe. Dilengkapi dengan Text-to-Speech (TTS) yang akan mengumumkan jumlah jari yang terdeteksi!
 
-https://img.shields.io/badge/Demo-Live-brightgreen
-https://img.shields.io/badge/TensorFlow.js-FF6F00?logo=tensorflow&logoColor=white
-https://img.shields.io/badge/MediaPipe-4285F4?logo=google&logoColor=white
-https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black
-https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white
-https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white
+![Demo](https://img.shields.io/badge/Demo-Live-brightgreen)
+![TensorFlow](https://img.shields.io/badge/TensorFlow.js-FF6F00?logo=tensorflow&logoColor=white)
+![MediaPipe](https://img.shields.io/badge/MediaPipe-4285F4?logo=google&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
 
-# Demo Live
+## Demo Live
+**Link Demo:** [https://hand-fasedetection.vercel.app/](https://hand-fasedetection.vercel.app/)
 
-### Link Demo: https://hand-fasedetection.vercel.app/
+![Preview](https://files.catbox.moe/35751j.png)
 
-https://files.catbox.moe/35751j.png
+## Fitur Utama
 
-✨ Fitur Utama
+### Deteksi Tangan Real-time
+- Hand tracking dengan 21 landmark points
+- Penghitungan jari otomatis (0-5 jari)
+- Pengenalan gestur: Peace Sign, Thumbs Up, Kepalan Tangan
+- Multi-hand support - hingga 2 tangan sekaligus
+- Visualisasi bounding box merah dan landmarks
 
-🖐️ Deteksi Tangan Real-time
+### Deteksi Wajah
+- Face detection dengan bounding box hijau
+- Multi-face support - beberapa wajah sekaligus
+- Landmarks wajah untuk analisis detail
+- Real-time tracking
 
-· Hand tracking dengan 21 landmark points
-· Penghitungan jari otomatis (0-5 jari)
-· Pengenalan gestur: Peace Sign, Thumbs Up, Kepalan Tangan
-· Multi-hand support - hingga 2 tangan sekaligus
-· Visualisasi bounding box merah dan landmarks
+### Text-to-Speech (TTS)
+- Voice feedback dalam Bahasa Indonesia
+- Mengumumkan jumlah jari: "satu jari", "dua jari", dll
+- Gestur khusus: "Jempol baik", "Peace sign", "Telapak tangan terbuka"
+- Responsif terhadap perubahan deteksi
 
-😊 Deteksi Wajah
+### Kontrol Interaktif
+- Start/Stop Detection - kontrol deteksi
+- Switch Camera - ganti kamera depan/belakang
+- Real-time Statistics - panel hasil deteksi
+- Loading Indicator - status pemuatan model
 
-· Face detection dengan bounding box hijau
-· Multi-face support - beberapa wajah sekaligus
-· Landmarks wajah untuk analisis detail
-· Real-time tracking
+## Teknologi
 
-🔊 Text-to-Speech (TTS)
+| Teknologi | Fungsi |
+|-----------|--------|
+| TensorFlow.js | Machine learning di browser |
+| MediaPipe Hands | Deteksi tangan & jari |
+| BlazeFace | Deteksi wajah real-time |
+| Web Speech API | Text-to-Speech |
+| HTML5 Canvas | Visualisasi real-time |
+| CSS3 | Styling & animasi |
 
-· Voice feedback dalam Bahasa Indonesia
-· Mengumumkan jumlah jari: "satu jari", "dua jari", dll
-· Gestur khusus: "Jempol baik", "Peace sign", "Telapak tangan terbuka"
-· Responsif terhadap perubahan deteksi
-
-🎮 Kontrol Interaktif
-
-· Start/Stop Detection - kontrol deteksi
-· Switch Camera - ganti kamera depan/belakang
-· Real-time Statistics - panel hasil deteksi
-· Loading Indicator - status pemuatan model
-
-🛠️ Teknologi
-
-Teknologi Fungsi
-TensorFlow.js Machine learning di browser
-MediaPipe Hands Deteksi tangan & jari
-BlazeFace Deteksi wajah real-time
-Web Speech API Text-to-Speech
-HTML5 Canvas Visualisasi real-time
-CSS3 Styling & animasi
-
-📁 Struktur Project
+## Struktur Project
 
 ```
+
 hand-face-detection/
-├── 📄 index.html          # Struktur utama website
-├── 📄 style.css           # Styling & animasi
-├── 📄 script.js           # Logic & deteksi
-└── 📄 README.md           # Dokumentasi ini
+├──index.html          # Struktur utama website
+├──style.css           # Styling & animasi
+├──script.js           # Logic & deteksi
+└──README.md           # Dokumentasi ini
+
 ```
 
-🎯 Cara Menggunakan
+## Cara Menggunakan
 
-1. Buka Website - Akses demo link
-2. Izinkan Kamera - Klik "Izinkan" saat diminta akses kamera
-3. Mulai Deteksi - Klik tombol "Mulai Deteksi"
-4. Interaksi - Tunjukkan tangan dan wajah ke kamera
-5. Dengarkan - Sistem akan mengucapkan jumlah jari terdeteksi
+1. **Buka Website** - Akses [demo link](https://hand-fasedetection.vercel.app/)
+2. **Izinkan Kamera** - Klik "Izinkan" saat diminta akses kamera
+3. **Mulai Deteksi** - Klik tombol "Mulai Deteksi"
+4. **Interaksi** - Tunjukkan tangan dan wajah ke kamera
+5. **Dengarkan** - Sistem akan mengucapkan jumlah jari terdeteksi
 
-🔧 Instalasi & Development
+## Instalasi & Development
 
-Menjalankan Lokal
-
+### Menjalankan Lokal
 ```bash
 # Clone atau download project
 # Buka index.html di browser modern
@@ -91,7 +89,7 @@ Deploy ke Vercel/Netlify
 2. Connect repository ke Vercel/Netlify
 3. Deploy otomatis
 
-📊 Fitur Deteksi Lengkap
+Fitur Deteksi Lengkap
 
 Komponen Status Visual Suara
 Wajah ✅ Kotak hijau -
@@ -104,7 +102,7 @@ Jari 4 ✅ Empat jari "empat jari"
 Jari 5 ✅ Telapak tangan "lima jari" / "Telapak tangan terbuka"
 Thumbs Up ✅ Jempol "Jempol baik"
 
-🎨 UI/UX Features
+UI/UX Features
 
 · Modern Design - Gradient background & glassmorphism
 · Responsive - Mobile & desktop friendly
@@ -112,7 +110,7 @@ Thumbs Up ✅ Jempol "Jempol baik"
 · Smooth Animations - Hover effects & transitions
 · Intuitive Controls - Clear button labels dengan icons
 
-🌐 Browser Compatibility
+Browser Compatibility
 
 Browser Status Catatan
 Chrome ✅ Recommended Performa terbaik
@@ -120,21 +118,21 @@ Firefox ✅ Supported -
 Edge ✅ Supported -
 Safari ⚠️ Limited TTS mungkin terbatas
 
-📝 Requirements
+Requirements
 
 · Browser Modern dengan WebRTC support
 · Akses Kamera diijinkan
 · Koneksi Internet (untuk load model pertama)
 · HTTPS (untuk akses kamera yang aman)
 
-🚀 Performance Tips
+Performance Tips
 
 · Gunakan Chrome untuk hasil terbaik
 · Cahaya cukup untuk deteksi optimal
 · Background sederhana mengurangi noise
 · Refresh jika deteksi bermasalah
 
-🤝 Contributing
+Contributing
 
 Contributions welcome! Silakan:
 
@@ -144,22 +142,19 @@ Contributions welcome! Silakan:
 4. Push to branch (git push origin feature/AmazingFeature)
 5. Open Pull Request
 
-📄 License
+License
 
 Distributed under MIT License. See LICENSE for more information.
 
-👨‍💻 Developer
-
-Dibuat dengan ❤️ menggunakan:
+Dibuat menggunakan:
 
 · TensorFlow.js
 · MediaPipe
 · Web Speech API
 
 ---
-
 ⭐ Jika project ini membantu, jangan lupa beri star!
-
 🔗 Demo: https://hand-fasedetection.vercel.app/
-
 🐛 Issues? Silakan buat issue di GitHub repository
+
+```
