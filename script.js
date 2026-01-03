@@ -143,7 +143,7 @@ function countFingers(l) {
 function detectGesture(l, f) {
     if (f === 0) return 'Kepalan Tangan';
     if (f === 1) return l[4].x > l[3].x ? 'Thumbs Up' : 'Satu Jari';
-    if (f === 2) return (l[8].y < l[6].y && l[12].y < l[10].y) ? 'Peace Sign' : 'Dua Jari';
+    if (f === 2) return (l[8].y < l[6].y && l[12].y < l[10].y) ? 'Dua Jari';
     if (f === 3) return 'Tiga Jari';
     if (f === 4) return 'Empat Jari';
     if (f === 5) return 'Telapak Tangan';
@@ -229,7 +229,7 @@ async function startDetection() {
     isDetecting = true;
     startBtn.disabled = true;
     stopBtn.disabled = false;
-    status.textContent = 'Deteksi aktif. TTS aktif.';
+    status.textContent = 'Deteksi aktif.';
     lastFingerCount = -1;
     lastGesture = '';
     detectionLoop();
